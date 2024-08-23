@@ -1,0 +1,72 @@
+<input class="hidden" type="text" name="id" value="{{tracker.id}}">
+<input class="hidden" type="checkbox" name="world" {{checked tracker.world}}>
+<div class="form-group">
+    <label>{{i18n 'menu.name.label'}}</label>
+    <div class="form-fields">
+        <input type="text" name="name" value="{{tracker.name}}"
+            placeholder="{{i18n 'menu.name.default'}}">
+    </div>
+</div>
+<div class="form-group">
+    <label>{{i18n 'menu.min'}}</label>
+    <div class="form-fields">
+        <input type="number" name="min" value="{{tracker.min}}" min="0" step="1">
+    </div>
+</div>
+<div class="form-group">
+    <label>{{i18n 'menu.max'}}</label>
+    <div class="form-fields">
+        <input type="number" name="max" value="{{tracker.max}}" min="0" step="1">
+    </div>
+</div>
+<div class="form-group">
+    <label>{{i18n 'menu.current'}}</label>
+    <div class="form-fields">
+        <input type="number" name="value" value="{{tracker.value}}" min="0" step="1">
+    </div>
+</div>
+<div class="form-group">
+    <label>{{i18n 'menu.mode.label'}}</label>
+    <div class="form-fields">
+        <select name="mode">
+            <option value="meter" {{#if (eq tracker.mode "meter") }} selected {{/if}}>{{i18n 'menu.mode.meter'}}</option>
+            <option value="pips" {{#if (eq tracker.mode "pips") }} selected {{/if}}>{{i18n 'menu.mode.pips'}}</option>
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    <label>{{i18n 'menu.pippath.label'}}</label>
+    <input type="text" name="pipImagePath" placeholder="{{i18n menu.pippath.placeholder}}" value="{{tracker.pipImagePath}}">
+</div>
+<div class="form-group">
+    <label>{{i18n 'step1'}}</label>
+    <div class="form-fields">
+        <input type="number" name="step1" value="{{tracker.step1}}" min="1" step="1">
+    </div>
+</div>
+<div class="form-group">
+    <label>{{i18n 'step2'}}</label>
+    <div class="form-fields">
+        <input type="number" name="step2" value="{{tracker.step2}}" min="1" step="1">
+    </div>
+</div>
+<div class="form-group">
+    <label>{{i18n 'step3'}}</label>
+    <div class="form-fields">
+        <input type="number" name="step3" value="{{tracker.step3}}" min="1" step="1">
+    </div>
+</div>
+{{#if tracker.world}}
+<div class="form-group">
+    <label>{{i18n 'menu.visible'}}</label>
+    <div class="form-fields">
+        <input type="checkbox" name="visible" {{checked tracker.visible}}>
+    </div>
+</div>
+{{/if}}
+{{#if isEdit}}
+<div class="delete">
+    <label>{{i18n 'menu.delete'}}</label>
+    <input type="checkbox" name="delete">
+</div>
+{{/if}}

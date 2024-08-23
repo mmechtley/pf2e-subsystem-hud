@@ -1,0 +1,44 @@
+{{#each worldTrackers as |tracker|}}
+{{> 'tracker-row' tracker=tracker isOwner=@root.isGM}}
+{{/each}}
+{{#if (and worldTrackers.length userTrackers.length)}}
+<hr>
+{{/if}}
+{{#each userTrackers as |tracker|}}
+{{> 'tracker-row' tracker=tracker isOwner=true}}
+{{/each}}
+
+{{#*inline 'tracker-row'}}
+<div class="tracker" data-tracker-id="{{tracker.id}}" data-is-world="{{tracker.world}}"
+    style="--ratio: {{tracker.ratio}};">
+    <div class="name">
+        {{#if (and @root.isGM tracker.world)}}
+        <i class="{{#if tracker.visible}}visible {{/if}}fa-solid fa-eye"></i>
+        {{/if}}
+        {{tracker.name}}
+    </div>
+    {{#if (eq tracker.mode "meter")}}
+    <div class="stats">
+        <div class="filler"></div>
+        <div class="min">{{tracker.min}}</div>
+        <div class="max">{{tracker.max}}</div>
+        <div class="value">{{tracker.value}}</div>
+    </div>
+    {{/if}}
+    {{#if (eq tracker.mode "pips")}}
+    <div class="pips">
+        {{#repeat tracker.value }}
+        <img src="{{tracker.pipImagePath}}" alt="Pip" />
+        {{/repeat }}
+    </div>
+    {{/if}}
+    {{#if isOwner}}
+    <a class="decrease" data-action="decrease-points" data-tooltip="{{tracker.decrease}}">
+        <i class="fa-solid fa-minus"></i>
+    </a>
+    <a class="increase" data-action="increase-points" data-tooltip="{{tracker.increase}}">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+    {{/if}}
+</div>
+{{/inline}}

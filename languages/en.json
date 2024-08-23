@@ -1,0 +1,55 @@
+{
+  "pf2e-subsystem-hud": {
+    "gmOnly": "GM Only",
+    "reload": "Requires Reload",
+    "settings": {
+      "trackers": {
+        "title": "Point Trackers",
+        "enabled": {
+          "hint": "Enables the tracking of custom resources in your world."
+        }
+      }
+    },
+    "trackers": {
+      "tracker": "Point Tracker",
+      "add": "Add new tracker",
+      "menu": {
+        "title": {
+          "create": "Create New Tracker",
+          "edit": "Edit Tracker"
+        },
+        "delete": "Delete Tracker?",
+        "min": "Minimum Value",
+        "max": "Maximum Value",
+        "current": "Current Value",
+        "visible": "Visible to players?",
+        "mode": {
+          "label": "Display Mode",
+          "meter": "Meter",
+          "pips": "Pips"
+        },
+        "pippath": {
+          "label": "Pip image",
+          "placeholder": "Path/To/Image"
+        },
+        "name": {
+          "label": "Tracker Name",
+          "default": "New Tracker"
+        },
+        "button": {
+          "yes": {
+            "create": "Create",
+            "edit": "Edit"
+          },
+          "no": "Cancel"
+        }
+      },
+      "edit": "[Right-Click] Edit Tracker",
+      "increase": "{click} increase by {value}",
+      "decrease": "{click} decrease by {value}",
+      "step1": "[Click]",
+      "step2": "[Shift-Click]",
+      "step3": "[Control-Click]"
+    }
+  }
+}

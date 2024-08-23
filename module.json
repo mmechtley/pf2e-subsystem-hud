@@ -1,0 +1,54 @@
+{
+  "id": "pf2e-subsystem-hud",
+  "title": "PF2E Subsystem HUD",
+  "description": "Shared HUD elements for running victory point style subsystems in Pathfinder Second Edition",
+  "version": "#{VERSION}#",
+  "library": "false",
+  "manifestPlusVersion": "1.2.0",
+  "compatibility": {
+    "minimum": 12,
+    "verified": 12,
+    "maximum": 12
+  },
+  "authors": [
+    {
+      "name": "Mira Mechtley",
+      "url": "https://github.com/mmechtley"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/pf2e-subsystem-hud.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "url": "https://github.com/mmechtley/pf2e-subsystem-hud",
+  "readme": "https://github.com/mmechtley/pf2e-subsystem-hud/blob/main/README.md",
+  "manifest": "https://raw.githubusercontent.com/mmechtley/pf2e-subsystem-hud/main/module.json",
+  "download": "https://github.com/mmechtley/pf2e-subsystem-hud/releases/download/#{VERSION}#/module.zip",
+  "bugs": "https://github.com/mmechtley/pf2e-subsystem-hud/issues",
+  "systems": [
+    {
+      "id": "pf2e",
+      "type": "system",
+      "manifest": "https://raw.githubusercontent.com/foundryvtt/pf2e/master/system.json",
+      "compatibility": {
+        "minimum": "6.1.3"
+      }
+    }
+  ],
+  "requires": [
+    {
+      "id": "lib-wrapper",
+      "type": "module",
+      "manifest": "https://raw.githubusercontent.com/ruipin/fvtt-lib-wrapper/master/module.json"
+    }
+  ]
+}
