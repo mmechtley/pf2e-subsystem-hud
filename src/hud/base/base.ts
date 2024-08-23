@@ -32,17 +32,6 @@ abstract class PF2eSubsystemHudBase<
     getSettings(): SettingOptions[] {
         return [
             {
-                key: "enabled",
-                type: Boolean,
-                default: true,
-                scope: "client",
-                name: settingPath("shared.enabled.name"),
-                hint: settingPath("shared.enabled.hint"),
-                onChange: () => {
-                    this.enable();
-                },
-            },
-            {
                 key: "fontSize",
                 type: Number,
                 range: {
@@ -52,17 +41,13 @@ abstract class PF2eSubsystemHudBase<
                 },
                 default: 14,
                 scope: "client",
-                name: settingPath("shared.fontSize.name"),
-                hint: settingPath("shared.fontSize.hint"),
+                name: settingPath("fontSize.name"),
+                hint: settingPath("fontSize.hint"),
                 onChange: () => {
                     this.render();
                 },
             },
         ];
-    }
-
-    get enabled(): boolean {
-        return this.getSetting("enabled");
     }
 
     abstract _onEnable(enabled?: boolean): void;
@@ -132,7 +117,6 @@ type GlobalSettings = {
 
 type BaseSettings = {
     fontSize: number;
-    enabled: boolean;
 };
 
 type BaseRenderOptions = ApplicationRenderOptions & {

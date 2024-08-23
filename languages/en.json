@@ -3,11 +3,9 @@
     "gmOnly": "GM Only",
     "reload": "Requires Reload",
     "settings": {
-      "trackers": {
-        "title": "Point Trackers",
-        "enabled": {
-          "hint": "Enables the tracking of custom resources in your world."
-        }
+      "fontSize": {
+        "name": "Font Size",
+        "hint": "Adjust the font size of text elements"
       }
     },
     "trackers": {
@@ -30,7 +28,7 @@
         },
         "pippath": {
           "label": "Pip image",
-          "placeholder": "Path/To/Image"
+          "placeholder": "path/image.png"
         },
         "name": {
           "label": "Tracker Name",

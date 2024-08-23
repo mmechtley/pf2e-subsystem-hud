@@ -68,7 +68,7 @@ class PF2eHudTrackers extends PF2eSubsystemHudBase<TrackerSettings, TrackersUser
     }
 
     get SETTINGS_ORDER(): (keyof TrackerSettings)[] {
-    return ["enabled", "fontSize"];
+    return ["fontSize"];
 }
 
 get worldTrackers() {
@@ -81,11 +81,6 @@ get userTrackers() {
 
 getSettings() {
     const parentSettings = super.getSettings();
-
-    const enabledSetting = parentSettings.find((x) => x.key === "enabled")!;
-    enabledSetting.scope = "world";
-    enabledSetting.hint = settingPath("trackers.enabled.hint");
-    enabledSetting.requiresReload = true;
 
     return parentSettings.concat([
         {
@@ -110,9 +105,6 @@ getSettings() {
 _onEnable() {
     if (this.#initialized) return;
     this.#initialized = true;
-
-    const enabled = this.enabled;
-    if (!enabled) return;
 
     Hooks.on("updateUser", this.#onUpdateUser.bind(this));
     Hooks.on("getSceneControlButtons", this.#onGetSceneControlButtons.bind(this));

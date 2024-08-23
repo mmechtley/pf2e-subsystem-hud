@@ -1,6 +1,10 @@
-if [ -z "$1" ]; then
+version_num = $1
+if [ -z "$version_num" ]; then
   echo "Specify a version number"
-  exit
+  read version_num
+  if [ -z "$version_num"]; then
+    exit
+  fi
 fi
 rm -rf release
 mkdir release
@@ -11,7 +15,7 @@ cp -r languages release/module/
 cp -r scripts release/module/
 cp -r styles release/module/
 cp -r templates release/module/
-sed -e "s/\#{VERSION}\#/$1/g" -I '' release/module.json
+sed -e "s/\#{VERSION}\#/$version_num/g" -I '' release/module.json
 cp release/module.json release/module/
 cd release
 zip -r module.zip module

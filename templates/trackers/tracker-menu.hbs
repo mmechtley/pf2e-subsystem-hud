@@ -36,7 +36,9 @@
 </div>
 <div class="form-group">
     <label>{{i18n 'menu.pippath.label'}}</label>
-    <input type="text" name="pipImagePath" placeholder="{{i18n menu.pippath.placeholder}}" value="{{tracker.pipImagePath}}">
+    <div class="form-fields">
+        <file-picker name="pipImagePath" type="imagevideo" value="{{tracker.pipImagePath}}" placeholder="{{i18n "menu.pippath.placeholder"}}"></file-picker>
+    </div>
 </div>
 <div class="form-group">
     <label>{{i18n 'step1'}}</label>
