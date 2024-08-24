@@ -40,6 +40,7 @@ function createStepTooltip(tracker: Tracker, direction: "increase" | "decrease")
 
 class PF2eHudTrackers extends PF2eSubsystemHudBase<TrackerSettings, TrackersUserSettings> {
     #initialized: boolean = false;
+    skillChoices:SkillChoice[] = [];
 
     static DEFAULT_OPTIONS: PartialApplicationConfiguration = {
         id: "pf2e-subsystem-hud-trackers",
@@ -97,8 +98,17 @@ getSettings() {
 }
 
 _onEnable() {
+
     if (this.#initialized) return;
     this.#initialized = true;
+
+    this.skillChoices = Object.entries(CONFIG.PF2E.skills).map( k => {return {
+        slug: k[0],
+        label: k[1].label
+    }});
+
+    this.skillChoices.sort((a,b) => {return localize(a.label).localeCompare(localize(b.label))});
+    this.skillChoices.push({slug:"lore", label: "pf2e-subsystem-hud.trackers.lore" })
 
     Hooks.on("updateUser", this.#onUpdateUser.bind(this));
     Hooks.on("getSceneControlButtons", this.#onGetSceneControlButtons.bind(this));
@@ -123,7 +133,10 @@ async _prepareContext(options: TrackerRenderOptions): Promise<TrackerContext> {
         ? this.worldTrackers
         : this.worldTrackers.filter((tracker) => tracker.visible);
 
+    const skillsMap = Object.fromEntries( this.skillChoices.map(s => {return [s.slug, s.label];}));
+
     return {
+        skillsMap: skillsMap,
         isGM,
         worldTrackers: worldTrackers.map((tracker) => trackerContext(tracker)),
         userTrackers: this.userTrackers.map((tracker) => trackerContext(tracker)),
@@ -176,10 +189,6 @@ async _onClickAction(event: PointerEvent, target: HTMLElement) {
     if (event.button !== 0) return;
 
     const action = target.dataset.action as TrackerActionEvent;
-    const step = action as TrackerStep || "step";
-
-    const parent = htmlClosest(target, "[data-tracker-id]")!;
-    const { trackerId, isWorld } = elementDataset(parent);
 
     switch (action) {
         case "add-tracker": {
@@ -188,6 +197,9 @@ async _onClickAction(event: PointerEvent, target: HTMLElement) {
         }
 
         default: {
+            const step = action as TrackerStep || "step";
+            const parent = htmlClosest(target, "[data-tracker-id]")!;
+            const { trackerId, isWorld } = elementDataset(parent);
             this.moveTrackerByStep(trackerId, isWorld === "true", step, event.shiftKey);
         }
     }
@@ -213,6 +225,7 @@ async createTracker(isWorld: boolean) {
         mode: "pips",
         stepMode: "accumulating",
         pipImagePath: "",
+        skills: [],
         step: 1,
         shiftMultiplier: 1
     });
@@ -319,7 +332,7 @@ setTrackers(trackers: Tracker[], isWorld: boolean) {
 }
 
 validateTracker<T extends Tracker>(tracker: T): T {
-    const { id, max = 0, min = 0, name = "", value = 0, mode = "pips", stepMode = "accumulating" } = tracker;
+    const { id, max = 0, min = 0, name = "", value = 0, mode = "pips", stepMode = "accumulating", skills=[] } = tracker;
     const validatedMin = Number(min) || 0;
     const validatedMax = Math.max(validatedMin + 2, Number(max) || 0);
 
@@ -331,11 +344,14 @@ validateTracker<T extends Tracker>(tracker: T): T {
         max: validatedMax,
         value: Math.clamp(Number(value) || 0, validatedMin, validatedMax),
         mode: mode,
-        stepMode: stepMode
+        stepMode: stepMode,
+        skills: skills
     };
 }
 
 async #openTrackerMenu(tracker: Tracker, isEdit = false) {
+
+
     const editedTracker = await waitDialog<MenuTracker>({
             title: localize("trackers.menu.title", isEdit ? "edit" : "create"),
             content: "trackers/tracker-menu",
@@ -349,6 +365,7 @@ async #openTrackerMenu(tracker: Tracker, isEdit = false) {
             },
             data: {
                 tracker: tracker,
+                skillChoices: this.skillChoices,
                 isEdit,
                 i18n: templateLocalize("trackers"),
             },
@@ -441,7 +458,13 @@ type TrackerActionEvent = "add-tracker" | TrackerStep;
 type TrackerDisplayMode = "meter" | "pips";
 type TrackerStepMode = "manual" | "accumulating" | "diminishing";
 
+type SkillChoice = {
+    slug: string,
+    label: string
+}
+
 type TrackerContext = {
+    skillsMap: {};
     isGM: boolean;
     i18n: ReturnType<typeof templateLocalize>;
     userTrackers: ContextTracker[];
@@ -459,6 +482,7 @@ type Tracker = {
     world: boolean;
     mode: TrackerDisplayMode;
     stepMode: TrackerStepMode;
+    skills: string[],
     pipImagePath?: string;
     visible?: boolean;
     step?: number;

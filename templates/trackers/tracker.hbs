@@ -1,11 +1,11 @@
 {{#each worldTrackers as |tracker|}}
-{{> 'tracker-row' tracker=tracker isOwner=@root.isGM}}
+{{> 'tracker-row' tracker=tracker skillsMap=@root.skillsMap isOwner=@root.isGM}}
 {{/each}}
 {{#if (and worldTrackers.length userTrackers.length)}}
 <hr>
 {{/if}}
 {{#each userTrackers as |tracker|}}
-{{> 'tracker-row' tracker=tracker isOwner=true}}
+{{> 'tracker-row' tracker=tracker skillsMap=@root.skillsMap isOwner=true}}
 {{/each}}
 
 {{#*inline 'tracker-row'}}
@@ -31,6 +31,13 @@
         <img src="{{tracker.pipImagePath}}" alt="Pip" />
         {{/repeat }}
     </div>
+    {{/if}}
+    {{#if (gt skills.length 0)}}
+        <div class="skill-display">
+            {{#each skills as |skill|}}
+                <p class="skill">{{localize (lookup ../skillsMap skill)}}</p>
+            {{/each}}
+        </div>
     {{/if}}
     {{#if isOwner}}
         {{#if (eq tracker.stepMode "manual")}}

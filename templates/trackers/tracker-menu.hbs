@@ -41,6 +41,16 @@
     </div>
 </div>
 <div class="form-group">
+    <label>{{i18n 'menu.skills.label'}}</label>
+    <div class="form-fields">
+        <multi-checkbox name="skills">
+        {{#each skillChoices as |skillChoice|}}
+            <option value="{{skillChoice.slug}}" {{#contains skillChoice.slug ../tracker.skills}}selected{{/contains}}>{{localize skillChoice.label}}</option>
+        {{/each}}
+        </multi-checkbox>
+    </div>
+</div>
+<div class="form-group">
     <label>{{i18n 'menu.stepMode.label'}}</label>
     <div class="form-fields">
         <select name="stepMode">

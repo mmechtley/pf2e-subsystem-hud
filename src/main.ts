@@ -17,6 +17,11 @@ const HUDS = {
 Hooks.once("setup", () => {
     const repeat = require('handlebars-helper-repeat');
     Handlebars.registerHelper('repeat', repeat);
+    Handlebars.registerHelper('contains', function(needle, haystack, options) {
+        needle = Handlebars.escapeExpression(needle);
+        haystack = Handlebars.escapeExpression(haystack);
+        return (haystack.indexOf(needle) > -1) ? options.fn(this) : options.inverse(this);
+    });
 
     const isGM = userIsGM();
     const huds = Object.values(HUDS);

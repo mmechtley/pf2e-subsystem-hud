@@ -129,6 +129,23 @@
                 }
             }
 
+            .skill-display{
+                position: relative;
+                background: var(--stats-background);
+                border-radius: 4px;
+                padding: 4px;
+                display: flex;
+                flex-direction: row;
+                white-space: wrap;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+
+                .skill {
+                    display: flex;
+                    margin: 0 0.4em 0 0.4em;
+                }
+            }
+
             .result-buttons{
                 position: relative;
                 background: var(--stats-background);

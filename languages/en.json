@@ -39,6 +39,9 @@
           "label": "Pip image",
           "placeholder": "path/image.png"
         },
+        "skills": {
+          "label": "Skills display"
+        },
         "name": {
           "label": "Tracker Name",
           "default": "New Tracker"
@@ -73,7 +76,8 @@
       "increase": "{click} increase by {value}",
       "decrease": "{click} decrease by {value}",
       "step": "Manual Step Size",
-      "shiftMultiplier" : "[Shift Multiplier]"
+      "shiftMultiplier" : "[Shift Multiplier]",
+      "lore": "Lore Skills"
     }
   }
 }

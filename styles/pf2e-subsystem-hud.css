@@ -417,6 +417,21 @@ aside.locked-tooltip.pf2e-carry-type ul li a.selected:hover {
   height: 64px;
   display: inline;
 }
+#pf2e-subsystem-hud-trackers .window-content .tracker .skill-display {
+  position: relative;
+  background: var(--stats-background);
+  border-radius: 4px;
+  padding: 4px;
+  display: flex;
+  flex-direction: row;
+  white-space: wrap;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+#pf2e-subsystem-hud-trackers .window-content .tracker .skill-display .skill {
+  display: flex;
+  margin: 0 0.4em 0 0.4em;
+}
 #pf2e-subsystem-hud-trackers .window-content .tracker .result-buttons {
   position: relative;
   background: var(--stats-background);
