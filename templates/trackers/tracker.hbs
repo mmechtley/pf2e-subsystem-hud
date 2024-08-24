@@ -33,12 +33,31 @@
     </div>
     {{/if}}
     {{#if isOwner}}
-    <a class="decrease" data-action="decrease-points" data-tooltip="{{tracker.decrease}}">
-        <i class="fa-solid fa-minus"></i>
-    </a>
-    <a class="increase" data-action="increase-points" data-tooltip="{{tracker.increase}}">
-        <i class="fa-solid fa-plus"></i>
-    </a>
+        {{#if (eq tracker.stepMode "manual")}}
+        <a class="decrease" data-action="decrease-points" data-tooltip="{{tracker.decrease}}">
+            <i class="fa-solid fa-minus"></i>
+        </a>
+        <a class="increase" data-action="increase-points" data-tooltip="{{tracker.increase}}">
+            <i class="fa-solid fa-plus"></i>
+        </a>
+        {{else}}
+            <a class="decrease" data-action="decrease-points" data-tooltip="{{tracker.decrease}}"></a>
+            <a class="increase" data-action="increase-points" data-tooltip="{{tracker.increase}}"></a>
+            <div class="result-buttons">
+            <a class="result-button" data-action="cf" data-tooltip="{{localize 'pf2e-subsystem-hud.trackers.result.cf.hint'}}">
+                {{localize 'pf2e-subsystem-hud.trackers.result.cf.label'}}
+            </a>
+            <a class="result-button" data-action="f" data-tooltip="{{localize 'pf2e-subsystem-hud.trackers.result.f.hint'}}">
+                {{localize 'pf2e-subsystem-hud.trackers.result.f.label'}}
+            </a>
+            <a class="result-button" data-action="s" data-tooltip="{{localize 'pf2e-subsystem-hud.trackers.result.s.hint'}}">
+                {{localize 'pf2e-subsystem-hud.trackers.result.s.label'}}
+            </a>
+            <a class="result-button" data-action="cs" data-tooltip="{{localize 'pf2e-subsystem-hud.trackers.result.cs.hint'}}">
+                {{localize 'pf2e-subsystem-hud.trackers.result.cs.label'}}
+            </a>
+            </div>
+        {{/if}}
     {{/if}}
 </div>
 {{/inline}}

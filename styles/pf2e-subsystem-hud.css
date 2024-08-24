@@ -313,6 +313,7 @@ aside.locked-tooltip.pf2e-carry-type ul li a.selected:hover {
   box-shadow: none;
   border-radius: unset;
   font-size: var(--font-size);
+  color: var(--color);
 }
 #pf2e-subsystem-hud-trackers .window-header {
   pointer-events: none;
@@ -356,6 +357,7 @@ aside.locked-tooltip.pf2e-carry-type ul li a.selected:hover {
   display: flex;
   flex-direction: column;
   min-width: 14em;
+  width: fit-content;
   gap: 0.1em;
 }
 #pf2e-subsystem-hud-trackers .window-content .tracker .name {
@@ -406,6 +408,7 @@ aside.locked-tooltip.pf2e-carry-type ul li a.selected:hover {
   height: 72px;
   background: var(--stats-background);
   border-radius: 4px;
+  padding: 4px;
   overflow: visible;
   white-space: nowrap;
 }
@@ -413,9 +416,21 @@ aside.locked-tooltip.pf2e-carry-type ul li a.selected:hover {
   width: 64px;
   height: 64px;
   display: inline;
-  margin: 4px;
 }
-#pf2e-subsystem-hud-trackers .window-content .tracker a .decrease,
+#pf2e-subsystem-hud-trackers .window-content .tracker .result-buttons {
+  position: relative;
+  background: var(--stats-background);
+  border-radius: 4px;
+  padding: 4px;
+  display: flex;
+  flex-direction: row;
+}
+#pf2e-subsystem-hud-trackers .window-content .tracker .result-buttons .result-button {
+  height: 100%;
+  width: 3.5em;
+  text-align: center;
+}
+#pf2e-subsystem-hud-trackers .window-content .tracker .decrease,
 #pf2e-subsystem-hud-trackers .window-content .tracker .increase {
   position: absolute;
   height: 100%;

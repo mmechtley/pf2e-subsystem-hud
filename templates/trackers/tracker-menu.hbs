@@ -41,21 +41,25 @@
     </div>
 </div>
 <div class="form-group">
-    <label>{{i18n 'step1'}}</label>
+    <label>{{i18n 'menu.stepMode.label'}}</label>
     <div class="form-fields">
-        <input type="number" name="step1" value="{{tracker.step1}}" min="1" step="1">
+        <select name="stepMode">
+            <option value="accumulating" {{#if (eq tracker.stepMode "accumulating") }} selected {{/if}}>{{i18n 'menu.stepMode.accumulating'}}</option>
+            <option value="diminishing" {{#if (eq tracker.stepMode "diminishing") }} selected {{/if}}>{{i18n 'menu.stepMode.diminishing'}}</option>
+            <option value="manual" {{#if (eq tracker.stepMode "manual") }} selected {{/if}}>{{i18n 'menu.stepMode.manual'}}</option>
+        </select>
     </div>
 </div>
 <div class="form-group">
-    <label>{{i18n 'step2'}}</label>
+    <label>{{i18n 'step'}}</label>
     <div class="form-fields">
-        <input type="number" name="step2" value="{{tracker.step2}}" min="1" step="1">
+        <input type="number" name="step" value="{{tracker.step}}" min="1" step="1">
     </div>
 </div>
 <div class="form-group">
-    <label>{{i18n 'step3'}}</label>
+    <label>{{i18n 'shiftMultiplier'}}</label>
     <div class="form-fields">
-        <input type="number" name="step3" value="{{tracker.step3}}" min="1" step="1">
+        <input type="number" name="shiftMultiplier" value="{{tracker.shiftMultiplier}}" min="0">
     </div>
 </div>
 {{#if tracker.world}}

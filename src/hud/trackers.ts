@@ -6,7 +6,6 @@ import {
     htmlClosest,
     htmlQuery,
     localize,
-    R,
     render,
     settingPath,
     templateLocalize,
@@ -16,28 +15,23 @@ import {
 import { BaseRenderOptions, BaseSettings, PF2eSubsystemHudBase } from "./base/base";
 
 const DEFAULT_POSITION = { left: 150, top: 100 };
+const ACCUMULATING_STEPS = {"cf": -1, "f": 0, "s": 1, "cs": 2};
+const DIMINISHING_STEPS = {"cf": -2, "f": -1, "s": 0, "cs": 1};
 
 function createStepTooltip(tracker: Tracker, direction: "increase" | "decrease") {
-    const steps = R.pipe(
-        ["step1", "step2", "step3"] as const,
-    R.map((step) => {
-        const value = tracker[step];
-        if (typeof value !== "number" || value <= 0) return;
-
-        const click = localize("trackers", step);
-        return localize("trackers", direction, { click, value });
-    }),
-        R.filter(R.isTruthy)
-);
-
-    if (steps.length === 0) {
-        steps.push(
-            localize("trackers", direction, {
-                click: localize("trackers.step1"),
-                value: 1,
-            })
-        );
-    }
+    const steps : string[] = [];
+    steps.push(
+        localize("trackers", direction, {
+            click: localize("trackers.step"),
+            value: tracker.step || 1,
+        })
+    );
+    steps.push(
+        localize("trackers", direction, {
+            click: localize('trackers.shiftMultiplier'),
+            value: (tracker.shiftMultiplier || 1) * (tracker.step || 1)
+        })
+    );
 
     steps.unshift(localize("trackers.edit"));
 
@@ -182,17 +176,10 @@ async _onClickAction(event: PointerEvent, target: HTMLElement) {
     if (event.button !== 0) return;
 
     const action = target.dataset.action as TrackerActionEvent;
+    const step = action as TrackerStep || "step";
 
-    const updateTracker = (negative: boolean) => {
-        const parent = htmlClosest(target, "[data-tracker-id]")!;
-        const { trackerId, isWorld } = elementDataset(parent);
-        this.moveTrackerByStep(
-            trackerId,
-            isWorld === "true",
-            event.ctrlKey ? 3 : event.shiftKey ? 2 : 1,
-            negative
-        );
-    };
+    const parent = htmlClosest(target, "[data-tracker-id]")!;
+    const { trackerId, isWorld } = elementDataset(parent);
 
     switch (action) {
         case "add-tracker": {
@@ -200,14 +187,8 @@ async _onClickAction(event: PointerEvent, target: HTMLElement) {
             break;
         }
 
-        case "decrease-points": {
-            updateTracker(true);
-            break;
-        }
-
-        case "increase-points": {
-            updateTracker(false);
-            break;
+        default: {
+            this.moveTrackerByStep(trackerId, isWorld === "true", step, event.shiftKey);
         }
     }
 }
@@ -225,13 +206,15 @@ async createTracker(isWorld: boolean) {
     const tracker = await this.#openTrackerMenu({
         id,
         name: localize("trackers.menu.name.default"),
-        max: 100,
+        max: 6,
         min: 0,
-        value: 100,
+        value: 0,
         world: isWorld,
-        mode: "meter",
+        mode: "pips",
+        stepMode: "accumulating",
         pipImagePath: "",
-        step1: 1,
+        step: 1,
+        shiftMultiplier: 1
     });
 
     if (tracker) {
@@ -248,15 +231,30 @@ addTracker(tracker: Tracker) {
     return this.setTrackers(trackers, tracker.world);
 }
 
-moveTrackerByStep(trackerId: string, isWorld: boolean, step: 1 | 2 | 3, negative: boolean) {
+moveTrackerByStep(trackerId: string, isWorld: boolean, step: TrackerStep, useMultiplier: boolean) {
     const tracker = this.getTracker(trackerId, isWorld);
     if (!tracker) return;
 
-    const stepValue =
-        step === 3 ? tracker.step3 : step === 2 ? tracker.step2 : tracker.step1;
+    const multiplier = useMultiplier ? (tracker.shiftMultiplier || 1) : 1;
 
-    const nb = stepValue || tracker.step1 || 1;
-    this.changeTrackerQuantity(trackerId, isWorld, negative ? nb * -1 : nb);
+    let modifyValue: number;
+    switch (step)
+    {
+        case "decrease-points": {
+            modifyValue = -(tracker.step || 1) * multiplier
+            break;
+        }
+        case "increase-points": {
+            modifyValue = (tracker.step || 1) * multiplier
+            break;
+        }
+        default: {
+            const steps = tracker.stepMode === "diminishing" ? DIMINISHING_STEPS : ACCUMULATING_STEPS;
+            modifyValue = steps[step];
+        }
+    }
+
+    this.changeTrackerQuantity(trackerId, isWorld, modifyValue);
 }
 
 changeTrackerQuantity(id: string, isWorld: boolean, nb: number) {
@@ -321,7 +319,7 @@ setTrackers(trackers: Tracker[], isWorld: boolean) {
 }
 
 validateTracker<T extends Tracker>(tracker: T): T {
-    const { id, max = 0, min = 0, name = "", value = 0, mode, pipImagePath } = tracker;
+    const { id, max = 0, min = 0, name = "", value = 0, mode = "pips", stepMode = "accumulating" } = tracker;
     const validatedMin = Number(min) || 0;
     const validatedMax = Math.max(validatedMin + 2, Number(max) || 0);
 
@@ -333,7 +331,7 @@ validateTracker<T extends Tracker>(tracker: T): T {
         max: validatedMax,
         value: Math.clamp(Number(value) || 0, validatedMin, validatedMax),
         mode: mode,
-        pipImagePath: pipImagePath
+        stepMode: stepMode
     };
 }
 
@@ -438,8 +436,10 @@ async #openTrackerMenu(tracker: Tracker, isEdit = false) {
 }
 }
 
-type TrackerActionEvent = "add-tracker" | "decrease-points" | "increase-points";
+type TrackerStep = "decrease-points" | "increase-points" | "cs" | "s" | "f" | "cf";
+type TrackerActionEvent = "add-tracker" | TrackerStep;
 type TrackerDisplayMode = "meter" | "pips";
+type TrackerStepMode = "manual" | "accumulating" | "diminishing";
 
 type TrackerContext = {
     isGM: boolean;
@@ -458,11 +458,11 @@ type Tracker = {
     value: number;
     world: boolean;
     mode: TrackerDisplayMode;
-    pipImagePath: string;
+    stepMode: TrackerStepMode;
+    pipImagePath?: string;
     visible?: boolean;
-    step1?: number;
-    step2?: number;
-    step3?: number;
+    step?: number;
+    shiftMultiplier?: number;
 };
 
 type ContextTracker = Tracker & {

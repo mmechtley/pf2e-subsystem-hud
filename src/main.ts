@@ -1,6 +1,5 @@
 import {
     MODULE,
-    R,
     createHTMLElement,
     htmlQuery,
     localize,

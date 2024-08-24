@@ -6,6 +6,9 @@
       "fontSize": {
         "name": "Font Size",
         "hint": "Adjust the font size of text elements"
+      },
+      "trackers": {
+        "title": "Show Subsystem Trackers"
       }
     },
     "trackers": {
@@ -26,6 +29,12 @@
           "meter": "Meter",
           "pips": "Pips"
         },
+        "stepMode":{
+          "label": "Step Mode (GM Core 184)",
+          "accumulating": "Accumulating (-1 / 0 / +1 / +2)",
+          "diminishing": "Diminishing (-2 / -1 / 0 / +1)",
+          "manual": "Manual Stepping Only"
+        },
         "pippath": {
           "label": "Pip image",
           "placeholder": "path/image.png"
@@ -42,12 +51,29 @@
           "no": "Cancel"
         }
       },
+      "result": {
+        "cf": {
+          "label": "CF",
+          "hint": "Critical Failure"
+        },
+        "f": {
+          "label": "F",
+          "hint": "Failure"
+        },
+        "s": {
+          "label": "S",
+          "hint": "Success"
+        },
+        "cs": {
+          "label": "CS",
+          "hint": "Critical Success"
+        }
+      },
       "edit": "[Right-Click] Edit Tracker",
       "increase": "{click} increase by {value}",
       "decrease": "{click} decrease by {value}",
-      "step1": "[Click]",
-      "step2": "[Shift-Click]",
-      "step3": "[Control-Click]"
+      "step": "Manual Step Size",
+      "shiftMultiplier" : "[Shift Multiplier]"
     }
   }
 }
