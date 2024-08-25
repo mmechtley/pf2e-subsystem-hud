@@ -7,8 +7,12 @@
         "name": "Font Size",
         "hint": "Adjust the font size of text elements"
       },
+      "extraSkills": {
+        "name": "Extra Skills",
+        "hint": "Additional skills / roll types that are selectable for skill display (comma-separated)"
+      },
       "trackers": {
-        "title": "Show Subsystem Trackers"
+        "title": "Subsystem Trackers"
       }
     },
     "trackers": {

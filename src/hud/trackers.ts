@@ -74,6 +74,11 @@ get userTrackers() {
     return this.getUserSetting("userTrackers")?.slice() ?? [];
 }
 
+get extraSkills() : SkillChoice[] {
+    return this.getSetting("extraSkills").split(',')
+        .map(s => {return {slug: game.pf2e.system.sluggify(s.trim()), label: s.trim()}});
+}
+
 getSettings() {
     const parentSettings = super.getSettings();
 
@@ -94,6 +99,18 @@ getSettings() {
             scope: "client",
             config: false,
         },
+        {
+            key: "extraSkills",
+            type: String,
+            default: [],
+            config: true,
+            scope: "world",
+            name: settingPath("extraSkills.name"),
+            hint: settingPath("extraSkills.hint"),
+            onChange: () => {
+                this.render();
+    },
+        }
     ]);
 }
 
@@ -133,7 +150,8 @@ async _prepareContext(options: TrackerRenderOptions): Promise<TrackerContext> {
         ? this.worldTrackers
         : this.worldTrackers.filter((tracker) => tracker.visible);
 
-    const skillsMap = Object.fromEntries( this.skillChoices.map(s => {return [s.slug, s.label];}));
+    const skillsMap = Object.fromEntries( this.skillChoices.concat(this.extraSkills)
+        .map(s => {return [s.slug, s.label];}));
 
     return {
         skillsMap: skillsMap,
@@ -365,7 +383,7 @@ async #openTrackerMenu(tracker: Tracker, isEdit = false) {
             },
             data: {
                 tracker: tracker,
-                skillChoices: this.skillChoices,
+                skillChoices: this.skillChoices.concat(this.extraSkills),
                 isEdit,
                 i18n: templateLocalize("trackers"),
             },
@@ -507,6 +525,7 @@ type TrackersUserSettings = {
 type TrackerSettings = BaseSettings & {
     worldTrackers: Tracker[];
     position: { left: number; top: number };
+    extraSkills: string;
 };
 
 export { PF2eHudTrackers };

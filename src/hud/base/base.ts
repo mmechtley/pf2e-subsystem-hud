@@ -9,8 +9,6 @@ import {
 } from "foundry-pf2e";
 
 const GLOBAL_SETTINGS: ReadonlyArray<keyof GlobalSettings> = [
-    "highestSpeed",
-    "useModifiers",
 ] as const;
 
 abstract class PF2eSubsystemHudBase<
