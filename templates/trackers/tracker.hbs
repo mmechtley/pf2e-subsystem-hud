@@ -1,18 +1,12 @@
 {{#each worldTrackers as |tracker|}}
 {{> 'tracker-row' tracker=tracker skillsMap=@root.skillsMap isOwner=@root.isGM}}
 {{/each}}
-{{#if (and worldTrackers.length userTrackers.length)}}
-<hr>
-{{/if}}
-{{#each userTrackers as |tracker|}}
-{{> 'tracker-row' tracker=tracker skillsMap=@root.skillsMap isOwner=true}}
-{{/each}}
 
 {{#*inline 'tracker-row'}}
-<div class="tracker" data-tracker-id="{{tracker.id}}" data-is-world="{{tracker.world}}"
+<div class="tracker" data-tracker-id="{{tracker.id}}"
     style="--ratio: {{tracker.ratio}};">
     <div class="name">
-        {{#if (and @root.isGM tracker.world)}}
+        {{#if @root.isGM }}
         <i class="{{#if tracker.visible}}visible {{/if}}fa-solid fa-eye"></i>
         {{/if}}
         {{tracker.name}}

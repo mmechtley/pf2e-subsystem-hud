@@ -2,7 +2,6 @@ import {
     addListenerAll,
     createHTMLElement,
     elementDataset,
-    getFlagProperty,
     htmlClosest,
     htmlQuery,
     localize,
@@ -38,7 +37,7 @@ function createStepTooltip(tracker: Tracker, direction: "increase" | "decrease")
     return steps.join("<br>");
 }
 
-class PF2eHudTrackers extends PF2eSubsystemHudBase<TrackerSettings, TrackersUserSettings> {
+class PF2eHudTrackers extends PF2eSubsystemHudBase<TrackerSettings> {
     #initialized: boolean = false;
     skillChoices:SkillChoice[] = [];
 
@@ -68,10 +67,6 @@ class PF2eHudTrackers extends PF2eSubsystemHudBase<TrackerSettings, TrackersUser
 
 get worldTrackers() {
     return this.getSetting("worldTrackers").slice();
-}
-
-get userTrackers() {
-    return this.getUserSetting("userTrackers")?.slice() ?? [];
 }
 
 get extraSkills() : SkillChoice[] {
@@ -109,7 +104,21 @@ getSettings() {
             hint: settingPath("extraSkills.hint"),
             onChange: () => {
                 this.render();
-    },
+                },
+        },
+        {
+            key: "showTracker",
+            type: Boolean,
+            default: false,
+            config: false,
+            onChange: ( showTracker ) => {
+                toggleControlTool("pf2e-subsystem-hud-trackers", showTracker);
+
+                if (showTracker) this.render(true);
+                else this.close();
+
+                return;
+            }
         }
     ]);
 }
@@ -125,12 +134,12 @@ _onEnable() {
     }});
 
     this.skillChoices.sort((a,b) => {return localize(a.label).localeCompare(localize(b.label))});
+    this.skillChoices.unshift({slug:"perception", label:"PF2E.PerceptionLabel"})
     this.skillChoices.push({slug:"lore", label: "pf2e-subsystem-hud.trackers.lore" })
 
-    Hooks.on("updateUser", this.#onUpdateUser.bind(this));
     Hooks.on("getSceneControlButtons", this.#onGetSceneControlButtons.bind(this));
 
-    if (this.getUserSetting("showTracker")) this.render(true);
+    if (this.getSetting("showTracker")) this.render(true);
 }
 
 async _prepareContext(options: TrackerRenderOptions): Promise<TrackerContext> {
@@ -157,7 +166,6 @@ async _prepareContext(options: TrackerRenderOptions): Promise<TrackerContext> {
         skillsMap: skillsMap,
         isGM,
         worldTrackers: worldTrackers.map((tracker) => trackerContext(tracker)),
-        userTrackers: this.userTrackers.map((tracker) => trackerContext(tracker)),
         i18n: templateLocalize("trackers"),
     };
 }
@@ -175,6 +183,7 @@ async _renderFrame(options: TrackerRenderOptions) {
 
     const template = await render("trackers/header", {
         i18n: templateLocalize("trackers"),
+        isGM: game.user.isGM
     });
 
     const header = createHTMLElement("div", {
@@ -205,32 +214,33 @@ _onPosition(position: ApplicationPosition) {
 
 async _onClickAction(event: PointerEvent, target: HTMLElement) {
     if (event.button !== 0) return;
+    if(!game.user.isGM) return;
 
     const action = target.dataset.action as TrackerActionEvent;
 
     switch (action) {
         case "add-tracker": {
-            this.createTracker(game.user.isGM);
+            this.createTracker();
             break;
         }
 
         default: {
             const step = action as TrackerStep || "step";
             const parent = htmlClosest(target, "[data-tracker-id]")!;
-            const { trackerId, isWorld } = elementDataset(parent);
-            this.moveTrackerByStep(trackerId, isWorld === "true", step, event.shiftKey);
+            const { trackerId } = elementDataset(parent);
+            this.moveTrackerByStep(trackerId, step, event.shiftKey);
         }
     }
 }
 
-getTracker(id: string, isWorld: boolean) {
-    const trackers = isWorld ? this.worldTrackers : this.userTrackers;
+getTracker(id: string) {
+    const trackers = this.worldTrackers;
     const tracker = trackers.find((x) => x.id === id);
     return tracker ? this.validateTracker(tracker) : null;
 }
 
-async createTracker(isWorld: boolean) {
-    if (isWorld && !game.user.isGM) return;
+async createTracker() {
+    if (!game.user.isGM) return;
 
     const id = foundry.utils.randomID();
     const tracker = await this.#openTrackerMenu({
@@ -239,7 +249,6 @@ async createTracker(isWorld: boolean) {
         max: 6,
         min: 0,
         value: 0,
-        world: isWorld,
         mode: "pips",
         stepMode: "accumulating",
         pipImagePath: "",
@@ -254,16 +263,16 @@ async createTracker(isWorld: boolean) {
 }
 
 addTracker(tracker: Tracker) {
-    if (tracker.world && !game.user.isGM) return;
+    if (!game.user.isGM) return;
 
-    const trackers = tracker.world ? this.worldTrackers : this.userTrackers;
+    const trackers = this.worldTrackers;
     trackers.push(tracker);
 
-    return this.setTrackers(trackers, tracker.world);
+    return this.setTrackers(trackers);
 }
 
-moveTrackerByStep(trackerId: string, isWorld: boolean, step: TrackerStep, useMultiplier: boolean) {
-    const tracker = this.getTracker(trackerId, isWorld);
+moveTrackerByStep(trackerId: string, step: TrackerStep, useMultiplier: boolean) {
+    const tracker = this.getTracker(trackerId);
     if (!tracker) return;
 
     const multiplier = useMultiplier ? (tracker.shiftMultiplier || 1) : 1;
@@ -285,13 +294,13 @@ moveTrackerByStep(trackerId: string, isWorld: boolean, step: TrackerStep, useMul
         }
     }
 
-    this.changeTrackerQuantity(trackerId, isWorld, modifyValue);
+    this.changeTrackerQuantity(trackerId, modifyValue);
 }
 
-changeTrackerQuantity(id: string, isWorld: boolean, nb: number) {
-    if (isWorld && !game.user.isGM) return;
+changeTrackerQuantity(id: string, nb: number) {
+    if (!game.user.isGM) return;
 
-    const tracker = this.getTracker(id, isWorld);
+    const tracker = this.getTracker(id);
     if (!tracker) return;
 
     const currentValue = Math.clamp(tracker.value, tracker.min, tracker.max);
@@ -303,50 +312,45 @@ changeTrackerQuantity(id: string, isWorld: boolean, nb: number) {
 }
 
 updateTracker(tracker: Tracker) {
-    if (tracker.world && !game.user.isGM) return;
+    if (!game.user.isGM) return;
 
-    const trackers = tracker.world ? this.worldTrackers : this.userTrackers;
+    const trackers = this.worldTrackers;
     const found = trackers.findSplice((x) => x.id === tracker.id, tracker);
     if (!found) return;
 
-    return this.setTrackers(trackers, tracker.world);
+    return this.setTrackers(trackers);
 }
 
-async editTracker(id: string, isWorld: boolean) {
-    if (isWorld && !game.user.isGM) return;
+async editTracker(id: string) {
+    if (!game.user.isGM) return;
 
-    const tracker = this.getTracker(id, isWorld);
+    const tracker = this.getTracker(id);
     if (!tracker) return;
 
     const editedTracker = await this.#openTrackerMenu(tracker, true);
     if (!editedTracker) return;
 
     if (editedTracker.delete) {
-        return this.deleteTracker(id, isWorld);
+        return this.deleteTracker(id);
     } else {
         delete editedTracker.delete;
         return this.updateTracker(editedTracker);
     }
 }
 
-deleteTracker(id: string, isWorld: boolean) {
-    if (isWorld && !game.user.isGM) return;
+deleteTracker(id: string) {
+    if (!game.user.isGM) return;
 
-    const trackers = isWorld ? this.worldTrackers : this.userTrackers;
+    const trackers = this.worldTrackers;
     const found = trackers.findSplice((x) => x.id === id);
     if (!found) return;
 
-    return this.setTrackers(trackers, isWorld);
+    return this.setTrackers(trackers);
 }
 
-setTrackers(trackers: Tracker[], isWorld: boolean) {
-    if (isWorld && !game.user.isGM) return;
-
-    if (isWorld) {
-        return this.setSetting("worldTrackers", trackers);
-    } else {
-        return this.setUserSetting("userTrackers", trackers);
-    }
+setTrackers(trackers: Tracker[]) {
+    if (!game.user.isGM) return;
+    return this.setSetting("worldTrackers", trackers);
 }
 
 validateTracker<T extends Tracker>(tracker: T): T {
@@ -393,9 +397,7 @@ async #openTrackerMenu(tracker: Tracker, isEdit = false) {
                         tooltip: tracker.id,
                         tooltipDirection: "UP",
                     },
-                    innerHTML: tracker.world
-                        ? "<i class='fa-solid fa-earth-americas'></i>"
-                        : "<i class='fa-solid fa-user'></i>",
+                    innerHTML: "<i class='fa-solid fa-earth-americas'></i>"
                 });
 
                 btn.style.marginLeft = "0.3em";
@@ -431,42 +433,25 @@ async #openTrackerMenu(tracker: Tracker, isEdit = false) {
 }, 1000);
 
 #onGetSceneControlButtons(controls: SceneControl[]) {
+    if(!game.user.isGM) return;
+
     controls[0].tools.push({
         title: settingPath("trackers.title"),
         name: "pf2e-subsystem-hud-trackers",
-        icon: "fa-regular fa-bars-progress",
+        icon: "fa-regular fa-shield-check",
         toggle: true,
         visible: true,
-        active: this.getUserSetting("showTracker"),
+        active: this.getSetting("showTracker"),
         onClick: (active) => {
-            this.setUserSetting("showTracker", active);
+            this.setSetting("showTracker", active);
         },
     });
 }
 
-#onUpdateUser(user: UserPF2e, updates: Partial<UserSourcePF2e>) {
-    if (user !== game.user) return;
-
-    const showTracker = getFlagProperty<boolean>(updates, "trackers.showTracker");
-    if (showTracker !== undefined) {
-        toggleControlTool("pf2e-subsystem-hud-trackers", showTracker);
-
-        if (showTracker) this.render(true);
-        else this.close();
-
-        return;
-    }
-
-    const trackers = getFlagProperty(updates, "trackers.userTrackers");
-    if (trackers !== undefined) {
-        this.render();
-    }
-}
-
 #activateListeners(html: HTMLElement) {
     addListenerAll(html, "[data-tracker-id]", "contextmenu", async (event, el) => {
-        const { trackerId, isWorld } = elementDataset(el);
-        this.editTracker(trackerId, isWorld === "true");
+        const { trackerId } = elementDataset(el);
+        this.editTracker(trackerId);
     });
 }
 }
@@ -485,7 +470,6 @@ type TrackerContext = {
     skillsMap: {};
     isGM: boolean;
     i18n: ReturnType<typeof templateLocalize>;
-    userTrackers: ContextTracker[];
     worldTrackers: ContextTracker[];
 };
 
@@ -497,7 +481,6 @@ type Tracker = {
     min: number;
     max: number;
     value: number;
-    world: boolean;
     mode: TrackerDisplayMode;
     stepMode: TrackerStepMode;
     skills: string[],
@@ -517,15 +500,11 @@ type MenuTracker = Tracker & {
     delete?: boolean;
 };
 
-type TrackersUserSettings = {
-    showTracker: boolean;
-    userTrackers: Tracker[];
-};
-
 type TrackerSettings = BaseSettings & {
     worldTrackers: Tracker[];
     position: { left: number; top: number };
     extraSkills: string;
+    showTracker: boolean;
 };
 
 export { PF2eHudTrackers };

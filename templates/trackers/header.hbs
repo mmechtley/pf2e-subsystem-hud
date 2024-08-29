@@ -1,3 +1,5 @@
-<i class="app drag-hand fa-regular fa-bars-progress"></i>
-<i class="app header-control fa-solid fa-plus" data-action="add-tracker"
-    data-tooltip="{{i18n.path 'add'}}"></i>
+<i class="app drag-hand fa-regular fa-shield-check"></i>
+{{#if isGM}}
+    <i class="app header-control fa-solid fa-plus" data-action="add-tracker"
+       data-tooltip="{{i18n.path 'add'}}"></i>
+{{/if}}
